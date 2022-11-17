@@ -4241,7 +4241,7 @@ void gemm_prepack_oth_int8(const int8_t* A_packed,
       reinterpret_cast<Dtype*>(zerobuf + x_block * sizeof(int8_t));
 
   //! apanel is pre_compute outside gemm
-
+  LOG(INFO) << ">>>>>>>>>>>>start gemm loop!";
   for (unsigned int x0 = 0; x0 < N; x0 += x_block) {
     unsigned int xmax = x0 + x_block;
     bool flag_rem = false;
@@ -4252,12 +4252,13 @@ void gemm_prepack_oth_int8(const int8_t* A_packed,
     int bblocks = (xmax - x0 + NBLOCK_INT8_OTH - 1) / NBLOCK_INT8_OTH;
     //! load bpanel
     int8_t* b_pannel = b_tmp;
+    LOG(INFO) << ">>>>>>>>>>>>start prepack b!";
     if (is_transB) {
       packb_trans_int8(b_pannel, B, K, 0, K, x0, xmax, zerobuf);
     } else {
       packb_int8(b_pannel, B, N, 0, K, x0, xmax, zerobuf);
     }
-
+    LOG(INFO) << ">>>>>>>>>>>>end prepack b! start parallel ";
     LITE_PARALLEL_COMMON_BEGIN(y, tid, M, 0, MBLOCK_INT8_OTH) {
       Dtype out0[NBLOCK_INT8_OTH] = {0};
       Dtype out1[NBLOCK_INT8_OTH] = {0};
@@ -4325,6 +4326,7 @@ void gemm_prepack_oth_int8(const int8_t* A_packed,
       }
       const int8_t* a_ptr_l = A_packed + y * KUP;
       const int8_t* b_ptr = b_pannel;
+      LOG(INFO) << ">>>>>>>>>>>>bblock loop entry";
       for (int xb = 0; xb < bblocks; xb++) {
         if (flag_rem && (xb == bblocks - 1)) {
           tmp0 = c_ptr0;
