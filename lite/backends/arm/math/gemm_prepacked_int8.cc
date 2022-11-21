@@ -4213,6 +4213,7 @@ void gemm_prepack_oth_int8(const int8_t* A_packed,
                            const float* scale,
                            const float* alpha,
                            ARMContext* ctx) {
+  LOG(INFO) << ">>>>>>>>>>>> M N K :" << M << " " << N << " " << K;
   const int KUP = ROUNDUP(K, KBLOCK_INT8);
   size_t llc_size = ctx->llc_size() / 4;
   auto workspace = ctx->workspace_data<int8_t>();
@@ -4363,6 +4364,7 @@ void gemm_prepack_oth_int8(const int8_t* A_packed,
     LITE_PARALLEL_COMMON_END();
   }
   free(zerobuf);
+  LOG(INFO) << ">>>>>>>>>>>>run success!"
 }
 
 /***********************************************************************/

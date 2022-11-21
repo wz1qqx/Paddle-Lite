@@ -213,24 +213,6 @@ void WinogradConv<PRECISION(kInt8), OutType>::ReInitWhenNeeded() {
     }
   }
 
-  const int new_input_size =
-      ic_pad * (ih + pad_h0 + pad_h1) * (iw + pad_w0 + pad_w1) +
-      oc_pad * oh * ow * sizeof(int32_t);
-  int tmp_input_thread_size_byte =
-      tile_block * ic_pad * wino_iw * wino_iw * sizeof(int16_t);
-  int tmp_output_thread_size_byte =
-      tile_block * oc_pad * wino_iw * wino_iw * sizeof(int32_t);
-  int tmp_trans_size_byte = wino_iw * wino_iw * sizeof(int16_t) * 8;
-  int tmp_remain_trans_size_byte = wino_iw * wino_iw * sizeof(int8_t) * 8;
-  int tmp_trans_out_size_byte = wino_iw * (wino_iw - 2) * sizeof(int32_t) * 8;
-  int tmp_remain_trans_out_size_byte =
-      (wino_iw - 2) * (wino_iw - 2) * sizeof(int32_t) * 8;
-  const int temp_size = tmp_input_thread_size_byte +
-                        tmp_output_thread_size_byte + tmp_trans_size_byte +
-                        tmp_remain_trans_size_byte + tmp_trans_out_size_byte +
-                        tmp_remain_trans_out_size_byte;
-  workspace_size_ = (temp_size + new_input_size) * 2;
-
   //! update trans weights impl
   // choose_small_ = ow * oh / (tile_block * threads) < 36 ? true : false;
   // select best wino_unit
@@ -256,6 +238,24 @@ void WinogradConv<PRECISION(kInt8), OutType>::ReInitWhenNeeded() {
   }
   last_function_ = -1;
 
+  const int new_input_size =
+      ic_pad * (ih + pad_h0 + pad_h1) * (iw + pad_w0 + pad_w1) +
+      oc_pad * oh * ow * sizeof(int32_t);
+  int tmp_input_thread_size_byte =
+      tile_block * ic_pad * wino_iw * wino_iw * sizeof(int16_t);
+  int tmp_output_thread_size_byte =
+      tile_block * oc_pad * wino_iw * wino_iw * sizeof(int32_t);
+  int tmp_trans_size_byte = wino_iw * wino_iw * sizeof(int16_t) * 8;
+  int tmp_remain_trans_size_byte = wino_iw * wino_iw * sizeof(int8_t) * 8;
+  int tmp_trans_out_size_byte = wino_iw * (wino_iw - 2) * sizeof(int32_t) * 8;
+  int tmp_remain_trans_out_size_byte =
+      (wino_iw - 2) * (wino_iw - 2) * sizeof(int32_t) * 8;
+  const int temp_size = tmp_input_thread_size_byte +
+                        tmp_output_thread_size_byte + tmp_trans_size_byte +
+                        tmp_remain_trans_size_byte + tmp_trans_out_size_byte +
+                        tmp_remain_trans_out_size_byte;
+  workspace_size_ = (temp_size + new_input_size) * 2;
+  
   weights_.Resize({1, 1, 1, wino_iw * wino_iw * oc_pad * ic_pad});
   void* trans_tmp_ptr = malloc(sizeof(int32_t) * wino_iw * wino_iw * oc * ic);
   auto weights_data_ = weights_.mutable_data<int16_t>();
