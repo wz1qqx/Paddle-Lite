@@ -4364,7 +4364,7 @@ void gemm_prepack_oth_int8(const int8_t* A_packed,
     LITE_PARALLEL_COMMON_END();
   }
   free(zerobuf);
-  LOG(INFO) << ">>>>>>>>>>>>run success!"
+  LOG(INFO) << ">>>>>>>>>>>>run success!";
 }
 
 /***********************************************************************/
