@@ -27,11 +27,51 @@
 //output : [batch_size, groups * group_output_channels, output_height, output_width]
 // Depthwise GCout = GCin = 1
 // TEST
-static void Test(benchmark::internal::Benchmark* b) {
+static void DepthTest(benchmark::internal::Benchmark* b) {
   b->ArgNames(
       {"N", "H", "W", "G", "GCout", "GCin", "KH", "KW", "PU", "PD", "PL", "PR", "SH", "SW", "DH", "DW"});
 
-  /*       N   H    W   G  GCin  GCout  KH  KW  PU  PD  PL  PR  SH  SW  DH  DW*/
+  /*       N   H    W   G  GCout  GCin  KH  KW  PU  PD  PL  PR  SH  SW  DH  DW*/
+  //depthwise 
+  b->Args({1, 224, 224, 16, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 16, 1, 1, 5, 5, 1, 1, 1, 1, 1, 2, 1, 1});//gemm
+  b->Args({1, 224, 224, 16, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 16, 1, 1, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1});//gemm
+  //direct sw=2
+  b->Args({1, 224, 224, 1, 16, 32, 3, 3, 1, 1, 1, 1, 2, 2, 1, 1});
+  b->Args({1, 224, 224, 1, 166, 512, 3, 3, 1, 1, 1, 1, 2, 2, 1, 1});//gemm
+  //direct sw=1 && winograd
+  b->Args({1, 224, 224, 1, 8, 32, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 1, 16, 32, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 2, 16, 32, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1});//gemm
+  //gemm 
+}
+
+static void DirectS2Test(benchmark::internal::Benchmark* b) {
+  b->ArgNames(
+      {"N", "H", "W", "G", "GCout", "GCin", "KH", "KW", "PU", "PD", "PL", "PR", "SH", "SW", "DH", "DW"});
+
+  /*       N   H    W   G  GCout  GCin  KH  KW  PU  PD  PL  PR  SH  SW  DH  DW*/
+  //depthwise 
+  b->Args({1, 224, 224, 16, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 16, 1, 1, 5, 5, 1, 1, 1, 1, 1, 2, 1, 1});//gemm
+  b->Args({1, 224, 224, 16, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 16, 1, 1, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1});//gemm
+  //direct sw=2
+  b->Args({1, 224, 224, 1, 16, 32, 3, 3, 1, 1, 1, 1, 2, 2, 1, 1});
+  b->Args({1, 224, 224, 1, 166, 512, 3, 3, 1, 1, 1, 1, 2, 2, 1, 1});//gemm
+  //direct sw=1 && winograd
+  b->Args({1, 224, 224, 1, 8, 32, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 1, 16, 32, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1});
+  b->Args({1, 224, 224, 2, 16, 32, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1});//gemm
+  //gemm 
+}
+
+static void DirectS1Test(benchmark::internal::Benchmark* b) {
+  b->ArgNames(
+      {"N", "H", "W", "G", "GCout", "GCin", "KH", "KW", "PU", "PD", "PL", "PR", "SH", "SW", "DH", "DW"});
+
+  /*       N   H    W   G  GCout  GCin  KH  KW  PU  PD  PL  PR  SH  SW  DH  DW*/
   //depthwise 
   b->Args({1, 224, 224, 16, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1});
   b->Args({1, 224, 224, 16, 1, 1, 5, 5, 1, 1, 1, 1, 1, 2, 1, 1});//gemm
